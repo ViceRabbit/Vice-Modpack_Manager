@@ -187,13 +187,28 @@ if __name__ == '__main__':
                                     supposeddirect.close()
                                     pathlabel.place(relx=0.36, rely=0.7)
                                 else:
-                                    supposeddirect = open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'),
-                                                                       directorylog), 'r')
-                                    labelpath['text'] = supposeddirect.read()
-                                    supposeddirect.close()
-                                    warninglabel = tk.Label(root, text="(Re-open application to update path!)",
-                                                            foreground='white', background='#1E1E1E')
-                                    warninglabel.place(relx=0.4, rely=0.8)
+                                    if not os.path.exists(open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'),
+                                        directorylog), 'r').read()):
+                                        directory_verifyinfo.place_forget()
+                                        directory_verifybtn.place_forget()
+                                        if not os.path.exists(os.path.join(os.path.expanduser('~'), 'Vice_UpdFiles')):
+                                            os.makedirs(os.path.join(os.path.expanduser('~'), 'Vice_UpdFiles'))
+                                        open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'), directorylog),
+                                             'w').write(fulldirpath)
+                                        supposeddirect = open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'),
+                                                                           directorylog), 'r')
+                                        pathlabel = tk.Label(root, text=supposeddirect.read(), foreground='#90ee90',
+                                                             background='#1E1E1E')
+                                        supposeddirect.close()
+                                        pathlabel.place(relx=0.36, rely=0.7)
+                                    else:
+                                        supposeddirect = open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'),
+                                                                           directorylog), 'r')
+                                        labelpath['text'] = supposeddirect.read()
+                                        supposeddirect.close()
+                                        warninglabel = tk.Label(root, text="(Re-open application to update path!)",
+                                                                foreground='white', background='#1E1E1E')
+                                        warninglabel.place(relx=0.4, rely=0.8)
                                 open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'), directorylog), 'w').write(
                                     fulldirpath)
                                 releaseandlock()
@@ -221,14 +236,26 @@ if __name__ == '__main__':
                                         foreground='red', background='#1E1E1E')
         directory_verifyinfo.place(relx=0.22, rely=0.8)
     else:
-        releaseandlock()
-        supposeddirect = open(os.path.join(os.path.expanduser('~/Vice_Updfiles'), directorylog), 'r')
-        labelpath = tk.Label(root, text=supposeddirect.read(), foreground='#90ee90', background='#1E1E1E')
-        supposeddirect.close()
-        labelpath.place(relx=0.36, rely=0.7)
-        changedirectbutton = tk.Button(root, text="  Change Directory  ", foreground='white', background='green',
-                                       command=getuserdirectory)
-        changedirectbutton.place(relx=0.22, rely=0.8)
+        if not os.path.exists(open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'), directorylog), 'r').read()):
+            disablebutton(firstbutton)
+            disablebutton(secondbutton)
+            disablebutton(thirdbutton)
+            directory_verifybtn = tk.Button(root, text="  Verify Directory  ", foreground='white', background='green',
+                                            command=getuserdirectory)
+            directory_verifybtn.place(relx=0.368, rely=0.7)
+
+            directory_verifyinfo = tk.Label(root, text="Verify your Modpack Directory! (Your Instance/Version Folder)",
+                                            foreground='red', background='#1E1E1E')
+            directory_verifyinfo.place(relx=0.22, rely=0.8)
+        else:
+            releaseandlock()
+            supposeddirect = open(os.path.join(os.path.expanduser('~/Vice_Updfiles'), directorylog), 'r')
+            labelpath = tk.Label(root, text=supposeddirect.read(), foreground='#90ee90', background='#1E1E1E')
+            supposeddirect.close()
+            labelpath.place(relx=0.36, rely=0.7)
+            changedirectbutton = tk.Button(root, text="  Change Directory  ", foreground='white', background='green',
+                                           command=getuserdirectory)
+            changedirectbutton.place(relx=0.22, rely=0.8)
 
     progresstext = tk.Label()
 
