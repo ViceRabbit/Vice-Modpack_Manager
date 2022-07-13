@@ -40,9 +40,12 @@ def filecontent_add(cont):
         linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) "
                                                                "AppleWebKit/537.36 (KHTML, like Gecko) "
                                                                "Chrome/81.0.4044.141 Safari/537.36"}, verify=False)
-    except:
-        open(os.path.join(os.path.expanduser('~'), 'Vice_UpdFiles', 'modfails.txt'), 'a').write("An SSL error has "
-            "occured! \n")
+    except requests.exceptions.SSLError:
+        print("Experienced SSL Error! Opening a new session with new headers! (get_configandfiles.py) ")
+        session.close()
+        session = requests.Session()
+        linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53"
+            "7.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"}, verify=False)
 
     normpath = os.path.normpath(passivelink)
     directory = normpath.split(os.sep)
@@ -103,3 +106,4 @@ for x in verifyusercontent2:
         os.remove(x)
 
 directorylogfile.close()
+print("Config-initialization finished! (srry for those warning msgs lmao)")
