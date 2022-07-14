@@ -51,7 +51,7 @@ for x in data_mods:
   cf_api = session.get('https://api.curseforge.com/v1/mods/' + project_id, headers=headers)
   open('curseforgetemp_api.json', "wb").write(cf_api.content)
   with open('curseforgetemp_api.json') as api_json:
-    if "504 Gateway Time-out" in open('curseforgetemp_api.json', 'r'):
+    if "504 Gateway Time-out" in open('curseforgetemp_api.json', 'r').read():
       print(name, "experienced a 504 gateway timeout! (While retrieving data from json!)")
       print("awe gotta slow down now, sleeping for 4 seconds!")
       sleep(4)
