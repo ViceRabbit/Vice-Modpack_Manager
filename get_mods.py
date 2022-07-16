@@ -2,11 +2,15 @@ import os
 import json
 import ssl
 import requests
+from requests.packages import urllib3
 import creds
+import urllib3
 from main import directorylog
 from datetime import datetime
 from time import sleep
 finished = False
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 directorylogfile = open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'), directorylog), 'r')
 officialpath = directorylogfile.read()
@@ -32,6 +36,7 @@ open(os.path.basename(modsrawlink), "wb").write(rrr.content)
 with open('modpack.json') as modpack_json:
   data = json.load(modpack_json)
 
+
 if not os.path.isdir(os.path.join(officialpath, 'mods')):
   os.makedirs(os.path.join(officialpath, 'mods'))
 data_mods = data['mods']
@@ -55,11 +60,11 @@ for x in data_mods:
       print(name, "experienced a 504 gateway timeout! (While retrieving data from json!)")
       print("awe gotta slow down now, sleeping for 4 seconds!")
       sleep(4)
-      print("repeating the session again! hope this doesnt timeout again - if you experience the next error, "
-            "pls tell vice")
+      print("\033[93mrepeating the session again! hope this doesnt timeout again - if you experience the next error, "
+            "pls tell vice\033[0m")
       session.close()
       session = requests.Session()
-      print("Successfully closed and re-opened session, now tiem to do the bigboy work")
+      print("\033[92mSuccessfully closed and re-opened session, now tiem to do the bigboy work")
       cf_api = session.get('https://api.curseforge.com/v1/mods/' + project_id, headers=headers)
       open('curseforgetemp_api.json', "wb").write(cf_api.content)
     print("Aboutt'a json load!")
@@ -88,7 +93,8 @@ for x in data_mods:
             sleep(1)
           break
         except requests.exceptions.SSLError:
-          print("Experienced SSL Error! Turning 'verify' off, adding new headers, and opening a new session!")
+          print("\033[92mExperienced SSL Error! Turning 'verify' off, adding new headers, and opening a new "
+                "session!\033[0m")
           session.close()
           session = requests.Session()
           installmentresponse = session.get(installationurl, headers=headers2, verify=False)
@@ -106,7 +112,7 @@ for x in data_mods:
 
 for x in set(updatefault):
   if x not in set(verfupdatefaultapi):
-      print(x, "failed to install! Logged in ViceUpdFiles . . .")
+      print("\033[91m" + x, "failed to install! Logged in ViceUpdFiles . . .\033[0m")
       open(os.path.join(os.path.expanduser('~'), 'Vice_UpdFiles', 'modfails.txt'), 'a').write(x + " failed to install ("
             "ERROR: ID Miss-match)! Perhaps an update is required?.. or vice fucked up - " + datetime.today().strftime(
         '%Y-%m-%d %H:%M:%S') + '\n')
@@ -121,4 +127,5 @@ directorylogfile.close()
 os.remove('curseforgetemp_api.json')
 os.remove('modpack.json')
 finished = True
-print("Mod-initialization finished! (thank god)")
+print("\033[92mMod-initialization finished! (thank god) - Initalizing config files\033[0m")
+print("\033[93mConfig files will not show status reports like mods, just give it a few minutes!\033[0m")
