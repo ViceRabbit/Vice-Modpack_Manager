@@ -1,11 +1,14 @@
 import os
 import requests
+from requests.packages import urllib3
 from github import Github
 from main import directorylog
 from datetime import datetime
 import ssl
 import creds # - Private File
 g = Github(creds.gkey)
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 directorylogfile = open(os.path.join(os.path.expanduser('~/Vice_UpdFiles'), directorylog), 'r')
 officialpath = directorylogfile.read()
@@ -47,6 +50,7 @@ def filecontent_add(cont):
         linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53"
             "7.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"}, verify=False)
 
+
     normpath = os.path.normpath(passivelink)
     directory = normpath.split(os.sep)
     directory.pop(len(directory) - 1)
@@ -59,11 +63,16 @@ def filecontent_add(cont):
             os.makedirs(os.path.join(officialpath, *directory))
 
     finishedfile = os.path.join(officialpath, *directory, os.path.basename(rawlink))
-    if os.path.basename(rawlink) not in verifyusercontent1 and os.path.basename(rawlink) not in verifyusercontent2:
-        try:
-            open(finishedfile, "wb").write(linkcont.content)
-        except TypeError:
-            open(finishedfile, "w").write(linkcont.content)
+    if os.path.basename(rawlink) not in verifyusercontent1:
+        if os.path.basename(rawlink) not in verifyusercontent2:
+            try:
+                open(finishedfile, "wb").write(linkcont.content)
+            except TypeError:
+                open(finishedfile, "w").write(linkcont.content)
+        else:
+            print("Skipped", cont, "due to the file already existing!")
+    else:
+        print("Skipped", cont, "due to the file already existing!")
 
 
 
@@ -100,10 +109,14 @@ for x in contents2:
 
 for x in verifyusercontent1:
     if x not in apicontent1:
-        os.remove(x)
+        if x not in apicontent2:
+            print("\033[93mRemoved", x, "due to no entry given! If this was a mistake, please contact Vice!\033[0m")
+            os.remove(x)
 for x in verifyusercontent2:
     if x not in apicontent2:
-        os.remove(x)
+        if x not in apicontent1:
+            print("\033[91mRemoved", x, "due to no entry given! If this was a mistake, please contact Vice!\033[0m")
+            os.remove(x)
 
 directorylogfile.close()
-print("Config-initialization finished! (srry for those warning msgs lmao)")
+print("\033[92mConfig-initialization finished!\033[0m")
