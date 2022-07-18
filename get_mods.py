@@ -53,7 +53,17 @@ for x in data_mods:
   name = x['name']
   print(name)
   session = requests.Session()
-  cf_api = session.get('https://api.curseforge.com/v1/mods/' + project_id, headers=headers)
+  while True:
+    worked = False
+    try:
+      cf_api = session.get('https://api.curseforge.com/v1/mods/' + project_id, headers=headers)
+      worked = True
+    except requests.exceptions.ConnectionError:
+      print("Wowzers, your internet is so trash! At attempt to retrieve " + name + ", sleeping for 5 seconds and " \
+                                                                                 "retrying. . ")
+      sleep(5)
+    if worked == True:
+      break
   open('curseforgetemp_api.json', "wb").write(cf_api.content)
   with open('curseforgetemp_api.json') as api_json:
     if "504 Gateway Time-out" in open('curseforgetemp_api.json', 'r').read():
@@ -65,7 +75,6 @@ for x in data_mods:
       session.close()
       session = requests.Session()
       print("\033[92mSuccessfully closed and re-opened session, now tiem to do the bigboy work")
-      cf_api = session.get('https://api.curseforge.com/v1/mods/' + project_id, headers=headers)
       open('curseforgetemp_api.json', "wb").write(cf_api.content)
     print("Aboutt'a json load!")
     api_data = json.load(open('curseforgetemp_api.json', "r"))
@@ -82,23 +91,34 @@ for x in data_mods:
         session = requests.Session()
         installationurl = "https://edge.forgecdn.net/files/" + proper_urlsect + y['filename']
         print(name, 'prepared for install')
-        try:
-          installmentresponse = session.get(installationurl, headers=headers, verify=False)
-          finished_file = os.path.join(officialpath, 'mods', os.path.basename(installationurl))
+        while True:
+          worked1 = False
           try:
-            open(finished_file, "wb").write(installmentresponse.content)
-            sleep(1)
-          except TypeError:
-            open(finished_file, "w").write(installmentresponse.content)
-            sleep(1)
-          break
-        except requests.exceptions.SSLError:
-          print("\033[92mExperienced SSL Error! Turning 'verify' off, adding new headers, and opening a new "
-                "session!\033[0m")
-          session.close()
-          session = requests.Session()
-          installmentresponse = session.get(installationurl, headers=headers2, verify=False)
-          finished_file = os.path.join(officialpath, 'mods', os.path.basename(installationurl))
+            try:
+              installmentresponse = session.get(installationurl, headers=headers, verify=False)
+              worked1 = True
+              finished_file = os.path.join(officialpath, 'mods', os.path.basename(installationurl))
+              try:
+                open(finished_file, "wb").write(installmentresponse.content)
+                sleep(1)
+              except TypeError:
+                open(finished_file, "w").write(installmentresponse.content)
+                sleep(1)
+              break
+            except requests.exceptions.SSLError:
+              print("\033[92mExperienced SSL Error! Turning 'verify' off, adding new headers, and opening a new "
+                    "session!\033[0m")
+              session.close()
+              session = requests.Session()
+              installmentresponse = session.get(installationurl, headers=headers2, verify=False)
+              worked1 = True
+              finished_file = os.path.join(officialpath, 'mods', os.path.basename(installationurl))
+          except requests.exceptions.ConnectionError:
+            print("Wowzers, your internet is so trash! At attempt to retrieve " + name + ", sleeping for 5 seconds "
+                        "and retrying. . ")
+            sleep(5)
+          if worked1 == True:
+            break
           try:
             open(finished_file, "wb").write(installmentresponse.content)
             sleep(1)
