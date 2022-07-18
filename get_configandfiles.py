@@ -1,6 +1,7 @@
 import os
 import requests
 from requests.packages import urllib3
+from time import sleep
 from github import Github
 from main import directorylog
 from datetime import datetime
@@ -39,16 +40,27 @@ def filecontent_add(cont):
     rawlink = "https://raw.githubusercontent.com/ViceRabbit/MCModpack-Isha-Reforged/master/" + cont
     passivelink = cont
     session = requests.Session()
-    try:
-        linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) "
-                                                               "AppleWebKit/537.36 (KHTML, like Gecko) "
-                                                               "Chrome/81.0.4044.141 Safari/537.36"}, verify=False)
-    except requests.exceptions.SSLError:
-        print("Experienced SSL Error! Opening a new session with new headers! (get_configandfiles.py) ")
-        session.close()
-        session = requests.Session()
-        linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53"
-            "7.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"}, verify=False)
+    while True:
+        worked = False
+        try:
+            try:
+                linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) "
+                                                                       "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                                                       "Chrome/81.0.4044.141 Safari/537.36"}, verify=False)
+                worked = True
+            except requests.exceptions.SSLError:
+                print("Experienced SSL Error! Opening a new session with new headers! (get_configandfiles.py) ")
+                session.close()
+                session = requests.Session()
+                linkcont = session.get(rawlink, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53"
+                    "7.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"}, verify=False)
+                worked = True
+        except requests.exceptions.ConnectionError:
+            print("Wowzers, your internet is so trash! At attempt to retrieve " + name + ", sleeping for 5 seconds "
+                    "and retrying. . ")
+            sleep(5)
+        if worked == True:
+            break
 
 
     normpath = os.path.normpath(passivelink)
